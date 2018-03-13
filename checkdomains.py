@@ -14,7 +14,7 @@ if not os.path.isfile(filepath):
 class Domain:
     def __init__(self, name):
         self.name = name
-        self.available =  True
+        self.available =  False
         self.checked = False
 
 firstLevels = [".cc"]
@@ -34,6 +34,10 @@ with open("checkdomain.txt", "r") as f:
 
 checkcount = 0
 available = 0
+saveresult = len(sys.argv) >= 2
+if saveresult:
+    f = open(sys.argv[2], "w")
+
 for domain in domains:
     response = whois.whois(domain.name)
     domain.available = bool(response.name is None )
@@ -41,21 +45,26 @@ for domain in domains:
     checkcount += 1
     if domain.available:
         available += 1
+        if saveresult:
+            f.write(domain.name + "\n")
+
     if checkcount % 5 == 0:
         percent  = round(checkcount / len(domains) * 100, 2)
-        print("Checked: {0} of {1} ({2}%). Available: {3}".format(checkcount, len(domains), percent, available))
+        print(
+            "Checked: {0} of {1} ({2}%). Available: {3}".format(
+                checkcount, 
+                len(domains), 
+                '{:.2f}'.format(percent),
+                available
+            )
+        )
     time.sleep(1)
 
-saveresult = len(sys.argv) >= 2
-
 if saveresult:
-    f = open(sys.argv[2], "w")
+    f.close()
+
 for domain in domains:
     if domain.available is True:
         print(domain.name)
-        if saveresult:
-            f.write(domain.name + "\n")
-if saveresult:
-    f.close()
 
 print("Done!")
