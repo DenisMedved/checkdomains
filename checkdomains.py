@@ -39,15 +39,19 @@ if saveresult:
     f = open(sys.argv[2], "w")
 
 for domain in domains:
-    response = whois.whois(domain.name)
-    domain.available = bool(response.name is None )
-    domain.checked = True
-    checkcount += 1
-    if domain.available:
-        available += 1
-        if saveresult:
-            f.write(domain.name + "\n")
-
+    try:
+        response = whois.whois(domain.name)
+        domain.available = bool(response.domain_name is None )
+        domain.checked = True
+        checkcount += 1
+        if domain.available:
+            available += 1
+            if saveresult:
+                f.write(domain.name + "\n")
+    except (KeyboardInterrupt, SystemExit):
+        raise
+    except:
+        pass
     if checkcount % 5 == 0:
         percent  = round(checkcount / len(domains) * 100, 2)
         print(
